@@ -22,6 +22,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
+
 @app.get("/")
 async def root():
     return {"message": "Server is running!"}

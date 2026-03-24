@@ -3,6 +3,7 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config.settings import Settings, get_settings
+from config.database import create_db_and_tables, get_session
 
 app = FastAPI()
 
@@ -28,6 +29,6 @@ async def root():
 @app.get("/info")
 async def get_info(settings: Annotated[Settings, Depends(get_settings)]):
     return {
-        "database": "URL Loaded" if settings.DATABASE_URL else "Missing",
-        "api_key_status": "API Key Loaded" if settings.GEMINI_API_KEY else "Missing"
+        "database": settings.DATABASE_URL,
+        "api_key_status": "Loaded" if settings.GEMINI_API_KEY else "Missing"
     }

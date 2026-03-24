@@ -1,0 +1,27 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Sanal Ortamlar (Virtual Environments)
+.venv/
+venv/
+ENV/
+env/
+
+# Gizli Değişkenler (Environment Variables)
+.env
+.flaskenv
+
+# IDE Dosyaları
+.vscode/
+.idea/
+
+# Test ve Coverge
+.pytest_cache/
+htmlcov/
+.tox/
+
+# Veritabanı (SQLite kullanıyorsanız)
+*.sqlite3
+db.sqlite3

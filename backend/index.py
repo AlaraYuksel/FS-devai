@@ -1,11 +1,13 @@
 from typing import Annotated
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from sqlmodel import Session
 from config.settings import Settings, get_settings
 from config.database import create_db_and_tables, get_session
 
 app = FastAPI()
+
+SessionDependency = Annotated[Session, Depends(get_session)]
 
 # CORS Ayarları
 origins = [

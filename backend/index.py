@@ -5,6 +5,9 @@ from sqlmodel import Session
 from config.settings import Settings, get_settings
 from config.database import create_db_and_tables, get_session
 
+from models.user_model import User, UserCreate, UserRead, UserUpdate, Token, TokenData, UserBase
+from models.run_model import Run, RunBase, RunRead
+
 app = FastAPI()
 
 SessionDependency = Annotated[Session, Depends(get_session)]

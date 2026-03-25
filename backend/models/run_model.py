@@ -1,30 +1,25 @@
-from sqlmodel import Field, SQLModel
-from .user_model import User
-from typing import Optional
-from sqlmodel import Relationship
-from datetime import datetime
+from sqlmodel import Field, SQLModel, Relationship
+from typing import Optional, TYPE_CHECKING
+from datetime import datetime, timezone
 
-class RunCreate(SQLModel):
+if TYPE_CHECKING:
+    from models.user_model import User
+
+class RunBase(SQLModel):
     type: str
     input_data: str
-    provider: Optional[str] = "Cloud"
+    provider: str = "Cloud"
+    output_data: Optional[str] = None
 
-class RunBase(SQLModel, table=True):
+class Run(RunBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    type: str
-    input_data: str
-    output_data: str
-    provider: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
     owner_id: int = Field(foreign_key="user.id")
-    owner: User = Relationship(back_populates="runs")
+    
+    owner: "User" = Relationship(back_populates="runs")
 
-class RunRead(SQLModel):
+class RunRead(RunBase):
     id: int
-    type: str
-    input_data: str
-    output_data: str
-    provider: str
     created_at: datetime
     owner_id: int

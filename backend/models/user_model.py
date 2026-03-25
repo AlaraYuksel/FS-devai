@@ -1,4 +1,8 @@
 from sqlmodel import Field, SQLModel, Relationship
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from models.run_model import Run
 
 class UserBase(SQLModel):
     username: str
@@ -12,7 +16,7 @@ class User(UserBase, table=True):
     runs: list["Run"] = Relationship(back_populates="owner") 
 
 class UserCreate(UserBase):
-    password: str
+    hashed_password: str
 
 class UserRead(UserBase):
     id: int

@@ -38,3 +38,11 @@ async def get_info(settings: Annotated[Settings, Depends(get_settings)]):
         "database": settings.DATABASE_URL,
         "api_key_status": "Loaded" if settings.GEMINI_API_KEY else "Missing"
     }
+
+@app.post("/test-db", response_model=UserCreate)
+async def test_db(session: SessionDependency, user: UserCreate):
+    db_user = User.model_validate(user)
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
+    return db_user

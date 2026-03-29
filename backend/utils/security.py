@@ -9,4 +9,72 @@ from fastapi.security import (
 from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
 from pydantic import BaseModel, ValidationError
+from datetime import datetime, timedelta
+from models.user_model import User, UserCreate, TokenData
 
+from sqlalchemy.orm import Session
+from config.database import get_session
+from config.settings import get_settings
+
+
+password_hash = PasswordHash.recommended()
+
+
+def verify_password(plain_password, hashed_password):
+    return password_hash.verify(plain_password, hashed_password)
+
+
+def get_password_hash(password):
+    return password_hash.hash(password)
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=get_settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, get_settings.SECRET_KEY, algorithm=get_settings.ALGORITHM)
+    return encoded_jwt
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], session: Annotated[Session, Depends(get_session)]):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[get_settings.ALGORITHM])
+        email = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+        token_data = TokenData(email=email)
+
+    except InvalidTokenError:
+        raise credentials_exception
+
+    user = session.query(User).filter(User.email == token_data.email).first()
+    if user is None:
+        raise credentials_exception
+    return user
+
+async def register_user(session: Annotated[Session, Depends(get_session)], user: UserCreate):
+    db_user = session.query(User).filter(User.email == user.email).first()
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    hashed_password = get_password_hash(user.hashed_password)
+    new_user = User(
+        username=user.username,
+        email=user.email,
+        disabled=user.disabled if user.disabled else False,
+        hashed_password=hashed_password
+    )
+    session.add(new_user)
+    session.commit()
+    session.refresh(new_user)
+    return new_user

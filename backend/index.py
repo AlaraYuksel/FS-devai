@@ -5,7 +5,7 @@ from sqlmodel import Session
 from config.settings import Settings, get_settings
 from config.database import create_db_and_tables, get_session
 
-from utils.security import get_current_user, register_user, create_access_token, verify_password, get_password_hash, authenticate_user
+from utils.security import get_current_user, get_current_active_user, register_user, create_access_token, verify_password, get_password_hash, authenticate_user
 from models.user_model import User, UserCreate, UserRead, UserUpdate, Token, TokenData, UserBase
 from models.run_model import Run, RunBase, RunRead
 from typing import Annotated
@@ -77,3 +77,10 @@ async def login_for_access_token(
         expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")
+
+
+@app.get("/users/me/")
+async def read_users_me(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+) -> UserRead:
+    return current_user

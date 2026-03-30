@@ -18,8 +18,10 @@ class User(UserBase, table=True):
 class UserCreate(UserBase):
     hashed_password: str
 
-class UserRead(UserBase):
+class UserRead(SQLModel):
     id: int
+    username: str
+    email: str
 
 class UserUpdate(SQLModel):
     username: str | None = None

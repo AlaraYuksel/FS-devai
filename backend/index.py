@@ -45,6 +45,8 @@ async def root():
     return {"message": "Server is running!"}
 
 
+# Auth Endpoints
+
 @app.get("/info")
 async def get_info(settings: Annotated[Settings, Depends(get_settings)],token: Annotated[str, Depends(oauth2_scheme)]):
     return {
@@ -81,6 +83,31 @@ async def login_for_access_token(
 
 @app.get("/users/me/")
 async def read_users_me(
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[UserRead, Depends(get_current_active_user)],
 ) -> UserRead:
     return current_user
+
+# Run Endpoints
+
+@app.get("/users/runs/")
+async def read_user_runs(
+    current_user: Annotated[RunRead, Depends(get_current_active_user)],
+    session: SessionDependency
+) -> list[RunRead]:
+    user_runs = session.query(Run).filter(Run.owner_id == current_user.id).all()
+    return [RunRead.from_orm(run) for run in user_runs]
+
+@app.post("/users/runs/")
+async def create_user_run(
+    run: RunBase,
+    current_user: Annotated[UserRead, Depends(get_current_active_user)],
+    session: SessionDependency
+) -> Run:
+
+    new_run = Run.model_validate(run, update={"owner_id": current_user.id})
+
+    session.add(new_run)
+    session.commit()
+    session.refresh(new_run)
+
+    return new_run

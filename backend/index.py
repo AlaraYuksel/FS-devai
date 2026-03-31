@@ -15,6 +15,8 @@ from fastapi.security import (
     OAuth2PasswordRequestForm,
 )
 from datetime import datetime, timedelta
+from controllers.llm_controller import generate_commit_message
+
 app = FastAPI()
 
 SessionDependency = Annotated[Session, Depends(get_session)]
@@ -103,8 +105,8 @@ async def create_user_run(
     current_user: Annotated[UserRead, Depends(get_current_active_user)],
     session: SessionDependency
 ) -> Run:
-
-    new_run = Run.model_validate(run, update={"owner_id": current_user.id})
+    
+    new_run = Run.model_validate(run, update={"owner_id": current_user.id, "output_data": generate_commit_message(run.input_data)})
 
     session.add(new_run)
     session.commit()

@@ -73,6 +73,11 @@ def me(args):
     if response:
         print(json.dumps(response, indent=2, ensure_ascii=False))
 
+def get_runs(args):
+    response = make_request("GET", "/users/runs/", require_auth=True)
+    if response:
+            print(json.dumps(response, indent=2, ensure_ascii=False))
+
 def main():
     parser = argparse.ArgumentParser(description="Uygulama için CLI")
     subparsers = parser.add_subparsers(dest="command", help="Kullanılabilir komutlar")
@@ -90,6 +95,9 @@ def main():
 
     # Me
     parser_me = subparsers.add_parser("me", help="Kullanıcı bilgisi getirir")
+
+    # Runs
+    parser_runs = subparsers.add_parser("runs", help="Commit mesaj geçmişini getirir")
 
     args = parser.parse_args()
 

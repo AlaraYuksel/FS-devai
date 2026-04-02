@@ -1,1 +1,18 @@
-Null
+This script is a command-line interface (CLI) tool built using standard Python libraries to interact with a local API running at http://localhost:8000, allowing users to register to the system, log in, view their profile information, create new runs, and list their past runs; additionally, the authorization token received after logging in is saved to the .cli_token file in the local directory and is automatically used in the background for other commands that require authorization.
+
+Register
+python cli.py register <name> <email> <password>
+
+Log in
+python cli.py login <name> <password>
+
+View your profile
+python cli.py me
+
+Submit a new run
+python cli.py create-run <run_type> "input data"
+run_type is default=cloud fn
+
+View your past runs
+python cli.py runs
+

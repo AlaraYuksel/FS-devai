@@ -18,6 +18,32 @@ def load_token():
             return f.read().strip()
     return None
 
+def make_request(method, endpoint, data=None, is_form=False, require_auth=False):
+    url = f"{BASE_URL}{endpoint}"
+    headers = {}
+    
+    if require_auth:
+        token = load_token()
+        if not token:
+            print("Lütfen giriş yapın (login)")
+            return None
+        headers["Authorization"] = f"Bearer {token}"
+        
+    body = None
+    if data:
+        if is_form:
+            # Login işlemi için Form Data
+            body = urllib.parse.urlencode(data).encode("utf-8")
+            headers["Content-Type"] = "application/x-www-form-urlencoded"
+        else:
+            # Diğer tüm işlemler için JSON Data
+            body = json.dumps(data).encode("utf-8")
+            headers["Content-Type"] = "application/json"
+            
+    req = urllib.request.Request(url, data=body, headers=headers, method=method)
+    
+    with urllib.request.urlopen(req) as response:
+        return json.loads(response.read().decode("utf-8"))
 
 def main():
     parser = argparse.ArgumentParser(description="Uygulama için CLI")

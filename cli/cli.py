@@ -50,9 +50,32 @@ def make_request(method, endpoint, data=None, is_form=False, require_auth=False)
     except urllib.error.URLError as e:
         print(f"Bağlantı hatası: {e.reason}")
 
+def register(args):
+    data = {
+        "username": args.username,
+        "email": args.email,
+        "disabled": False,
+        "hashed_password": args.password
+    }
+    response = make_request("POST", "/auth/register", data=data)
+    if response:
+        print(f"Kaydedildi: {response.get('username', args.username)}")
+
+
+
 def main():
     parser = argparse.ArgumentParser(description="Uygulama için CLI")
     subparsers = parser.add_subparsers(dest="command", help="Kullanılabilir komutlar")
+
+    parser_register = subparsers.add_parser("register", help="Yeni kullanıcı kaydı")
+    parser_register.add_argument("username", type=str, help="Kullanıcı adı")
+    parser_register.add_argument("email", type=str, help="E-posta adresi")
+    parser_register.add_argument("password", type=str, help="Şifre")
+
+    args = parser.parse_args()
+
+    if args.command == "register":
+        register(args)
 
 if __name__ == "__main__":
     main()

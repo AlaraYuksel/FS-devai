@@ -68,6 +68,11 @@ def login(args):
         save_token(response["access_token"])
         print("Token kaydedildi.")
 
+def me(args):
+    response = make_request("GET", "/users/me/", require_auth=True)
+    if response:
+        print(json.dumps(response, indent=2, ensure_ascii=False))
+
 def main():
     parser = argparse.ArgumentParser(description="Uygulama için CLI")
     subparsers = parser.add_subparsers(dest="command", help="Kullanılabilir komutlar")
@@ -83,6 +88,8 @@ def main():
     parser_login.add_argument("username", type=str, help="Kullanıcı adı")
     parser_login.add_argument("password", type=str, help="Şifre")
 
+    # Me
+    parser_me = subparsers.add_parser("me", help="Kullanıcı bilgisi getirir")
 
     args = parser.parse_args()
 
@@ -90,6 +97,8 @@ def main():
         register(args)
     elif args.command == "login":
         login(args)
+    elif args.command == "me":
+        me(args)
 
 if __name__ == "__main__":
     main()

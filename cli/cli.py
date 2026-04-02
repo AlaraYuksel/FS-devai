@@ -78,6 +78,17 @@ def get_runs(args):
     if response:
             print(json.dumps(response, indent=2, ensure_ascii=False))
 
+def create_run(args):
+    data = {
+        "type": args.type,
+        "input_data": args.input_data,
+        "provider": args.provider,
+        "output_data": "" 
+    }
+    response = make_request("POST", "/users/runs/", data=data, require_auth=True)
+    if response:
+        print(json.dumps(response, indent=2, ensure_ascii=False))
+
 def main():
     parser = argparse.ArgumentParser(description="Uygulama için CLI")
     subparsers = parser.add_subparsers(dest="command", help="Kullanılabilir komutlar")
@@ -99,6 +110,14 @@ def main():
     # Runs
     parser_runs = subparsers.add_parser("runs", help="Commit mesaj geçmişini getirir")
 
+    # Create Run
+    parser_create_run = subparsers.add_parser("create-run", help="Yeni bir run oluştur")
+    parser_create_run.add_argument("type", type=str, help="İşlem tipi")
+    parser_create_run.add_argument("input_data", type=str, help="Run için girdi verisi")
+    # Provider opsiyonel old. için -- kullandık default değeri cloud
+    parser_create_run.add_argument("--provider", type=str, default="Cloud", help="Kullanılacak sağlayıcı (Cloud vb.)")
+
+
     args = parser.parse_args()
 
     if args.command == "register":
@@ -109,6 +128,11 @@ def main():
         me(args)
     elif args.command == "runs":
         get_runs(args)
+    elif args.command == "create-run":
+        create_run(args)
+    else:
+        parser.print_help()
+    
 
 if __name__ == "__main__":
     main()

@@ -61,21 +61,35 @@ def register(args):
     if response:
         print(f"Kaydedildi: {response.get('username', args.username)}")
 
-
+def login(args):
+    data = {"username": args.username, "password": args.password}
+    response = make_request("POST", "/auth/login", data=data, is_form=True)
+    if response and "access_token" in response:
+        save_token(response["access_token"])
+        print("Token kaydedildi.")
 
 def main():
     parser = argparse.ArgumentParser(description="Uygulama için CLI")
     subparsers = parser.add_subparsers(dest="command", help="Kullanılabilir komutlar")
 
+    # Register
     parser_register = subparsers.add_parser("register", help="Yeni kullanıcı kaydı")
     parser_register.add_argument("username", type=str, help="Kullanıcı adı")
     parser_register.add_argument("email", type=str, help="E-posta adresi")
     parser_register.add_argument("password", type=str, help="Şifre")
 
+    # Login
+    parser_login = subparsers.add_parser("login", help="Giriş yap")
+    parser_login.add_argument("username", type=str, help="Kullanıcı adı")
+    parser_login.add_argument("password", type=str, help="Şifre")
+
+
     args = parser.parse_args()
 
     if args.command == "register":
         register(args)
+    elif args.command == "login":
+        login(args)
 
 if __name__ == "__main__":
     main()

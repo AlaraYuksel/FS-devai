@@ -42,8 +42,13 @@ def make_request(method, endpoint, data=None, is_form=False, require_auth=False)
             
     req = urllib.request.Request(url, data=body, headers=headers, method=method)
     
-    with urllib.request.urlopen(req) as response:
-        return json.loads(response.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(req) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        print(f"HTTP Hatası: {e.code}")
+    except urllib.error.URLError as e:
+        print(f"Bağlantı hatası: {e.reason}")
 
 def main():
     parser = argparse.ArgumentParser(description="Uygulama için CLI")

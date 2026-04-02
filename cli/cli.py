@@ -107,6 +107,8 @@ def main():
         login(args)
     elif args.command == "me":
         me(args)
+    elif args.command == "runs":
+        get_runs(args)
 
 if __name__ == "__main__":
     main()
